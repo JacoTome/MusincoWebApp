@@ -14,16 +14,17 @@ module.exports = {
   users: function (id) {
     const query =
       PREFIX +
-      `SELECT ?p ?o
-    SELECT *
+      ` SELECT *
     WHERE {
-    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> ?p ?o.
+    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> foaf:firstName ?name;
+        foaf:lastName ?surname;
+      musico:plays_instrument/schema:name ?instrument;
         
     }
     LIMIT 10
     
     `;
-    return query;
+    return decodeURI(query);
   },
   instrument: function (id) {
     const query =
@@ -38,7 +39,7 @@ module.exports = {
     LIMIT 10
     
     `;
-    return query;
+    return decodeURI(query);
   },
   genres: function (id) {
     const query =
@@ -51,28 +52,29 @@ module.exports = {
     LIMIT 10
     
     `;
-    return query;
+    return decodeURI(query);
   },
   suggestedUsers: function (id) {
     const query =
       PREFIX +
       `
-      SELECT DISTINCT ?name ?surname ?instrument ?genre
+      SELECT DISTINCT ?others ?name ?surname
       WHERE {
          # ?user sostituibile con [mo:uuid 1234]
-         BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)
+         #BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)
         ?user foaf:based_near ?location ;
               musico:plays_genre ?genre .
         ?others foaf:based_near ?location ;
-                musico:plays_genre ?genre ;  
+               # musico:plays_genre ?genre ;  
         # musico:plays_genre [ mo:similar_to ?genre ] .
                 foaf:firstName ?name ;
                 foaf:lastName ?surname ;
-                musico:plays_instrument ?instrument ;
-                musico:plays_genre ?genre ;
+             #   musico:plays_instrument ?instrument ;
+             #   musico:plays_genre ?genre ;
         FILTER (?user != ?others)
       } 
+      LIMIT 10
     `;
-    return query;
+    return decodeURI(query);
   },
 };

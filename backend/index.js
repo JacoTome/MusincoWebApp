@@ -6,23 +6,26 @@ const port = 3001;
 const endpointUrl = "http://204.216.223.231:3030/musinco/query";
 const client = new sparqlClient({ endpointUrl });
 const query = require("./query.js");
-const { compileFunction } = require("vm");
 
 //Encode query
 app.use(cors());
 app.use(express.json());
 
+app.use(function (req, res, next) {
+  req.url = encodeURI(req.url);
+  console.log(req.url);
+  next();
+});
+
 // Get with id
 app.get("/api/users/:id", async (req, res) => {
-  const queryString = query.users(req.params.id);
-  const stream = await client.query.select(queryString);
+  const stream = await client.query.select(query.users(req.params.id));
   resData = [];
   stream.on("data", (row) => {
-    data = {
-      p: decodeURI(row.p.value),
-      o: decodeURI(row.o.value),
-    };
-    resData.push(data);
+    for (const [key, value] of Object.entries(row)) {
+      data = { key: decodeURI(key), value: decodeURI(value.value) };
+      resData.push(data);
+    }
   });
   stream.on("error", console.error);
   stream.on("end", () => {
@@ -62,15 +65,17 @@ app.get("/api/genres/:id", async (req, res) => {
 });
 
 app.get("/api/suggestedUsers/:id", async (req, res) => {
-  const stream = await client.query.select(
-    decodeURI(query.suggestedUsers(req.params.id))
-  );
+  const stream = await client.query.select(query.suggestedUsers(req.params.id));
   resData = [];
   stream.on("data", (row) => {
+    rowData = {};
     for (const [key, value] of Object.entries(row)) {
-      data = { key: decodeURI(key), value: decodeURI(value.value) };
-      resData.push(data);
+      var decodedValue = decodeURI(value.value);
+      var splittedValue = decodedValue.split("/");
+      var id = splittedValue[splittedValue.length - 1];
+      rowData[decodeURI(key)] = id;
     }
+    resData.push(rowData);
   });
   stream.on("error", console.error);
   stream.on("end", () => {
