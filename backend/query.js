@@ -58,7 +58,7 @@ module.exports = {
     const query =
       PREFIX +
       `
-      SELECT DISTINCT ?others ?name ?surname
+      SELECT DISTINCT ?others
       WHERE {
          # ?user sostituibile con [mo:uuid 1234]
          #BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)

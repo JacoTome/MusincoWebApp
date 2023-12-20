@@ -22,14 +22,34 @@ app.get("/api/users/:id", async (req, res) => {
   const stream = await client.query.select(query.users(req.params.id));
   resData = [];
   stream.on("data", (row) => {
+    rowData = {};
     for (const [key, value] of Object.entries(row)) {
-      data = { key: decodeURI(key), value: decodeURI(value.value) };
-      resData.push(data);
+      var decodedValue = decodeURI(value.value);
+      var splittedValue = decodedValue.split("/");
+      var id = splittedValue[splittedValue.length - 1];
+      rowData[decodeURI(key)] = id;
     }
+    resData.push(rowData);
   });
   stream.on("error", console.error);
   stream.on("end", () => {
-    res.send(resData);
+    if (resData.length == 0) {
+      res.send("User not found");
+      return;
+    } else {
+      let finalRes = {
+        name: resData[0].name,
+        surname: resData[0].surname,
+        instrument: [],
+      };
+      for (data of resData) {
+        if (data.instrument) {
+          finalRes.instrument.push(data.instrument);
+        }
+      }
+      console.log(finalRes);
+      res.send(finalRes);
+    }
   });
 });
 
@@ -39,9 +59,12 @@ app.get("/api/instruments/:id", async (req, res) => {
   stream.on("data", (row) => {
     console.log(row);
     for (const [key, value] of Object.entries(row)) {
-      data = { key: decodeURI(key), value: decodeURI(value.value) };
-      resData.push(data);
+      var decodedValue = decodeURI(value.value);
+      var splittedValue = decodedValue.split("/");
+      var id = splittedValue[splittedValue.length - 1];
+      rowData[decodeURI(key)] = id;
     }
+    resData.push(rowData);
   });
   stream.on("error", console.error);
   stream.on("end", () => {
