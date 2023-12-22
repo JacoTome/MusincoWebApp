@@ -9,6 +9,7 @@ PREFIX event: <http://purl.org/NET/c4dm/event.owl#>
 PREFIX musinco: <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/>
 PREFIX musincoo: <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco#>
 PREFIX schema: <https://schema.org/>
+PREFIX mo: <http://purl.org/ontology/mo/>
 `;
 module.exports = {
   users: function (id) {
@@ -75,6 +76,58 @@ module.exports = {
       } 
       LIMIT 10
     `;
+    return decodeURI(query);
+  },
+  hourMood: function (hour) {
+    const query =
+      PREFIX +
+      `
+      SELECT ?mood
+      WHERE {
+        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/hour_${hour}> musincoo:popular_mood ?mood .
+      }
+      LIMIT 10
+    `;
+    return decodeURI(query);
+  },
+  genreMood: function (genre) {
+    const query =
+      PREFIX +
+      `
+    SELECT ?mood
+    WHERE {
+      <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Genre/${genre}> musincoo:popular_mood ?mood .
+    }
+    LIMIT 10
+  `;
+    return decodeURI(query);
+  },
+  moodGenre: function (mood) {
+    const query =
+      PREFIX +
+      `
+    SELECT ?genre
+    WHERE {
+      ?genre musincoo:popular_mood <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/${mood}> .
+    }
+    LIMIT 10
+  `;
+    return decodeURI(query);
+  },
+  hourMoodGenre: function (hour) {
+    const query =
+      PREFIX +
+      `
+    SELECT ?mood ?genre_name
+    WHERE {
+      <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/hour_${hour}> musincoo:popular_mood ?mood .
+         ?genre musincoo:popular_mood ?mood ;
+         a mo:Genre;
+         schema:name ?genre_name.
+
+    }
+    limit 10
+  `;
     return decodeURI(query);
   },
 };

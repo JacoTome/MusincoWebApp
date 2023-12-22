@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import CardUser from "../components/CardUser";
 import Header from "../components/Header";
 import axios from "axios";
-import { Container, Flex, Divider, Heading } from "@chakra-ui/react";
+import { Container, Flex, Divider, Heading, Spinner } from "@chakra-ui/react";
 import {
   Carousel,
   LeftButton,
@@ -12,9 +12,10 @@ import {
 function Home(props) {
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [genre, setGenre] = useState("Rock");
+  const [mood, setMood] = useState("happy");
+  const [loading, setLoading] = useState(true);
 
   async function getUserInfo(id) {
-    console.log("Getting user info for id: " + id);
     const response = await axios.get(`http://localhost:3001/api/users/${id}`);
     const user = response.data;
     return (
@@ -28,6 +29,25 @@ function Home(props) {
     );
   }
 
+  async function getMood() {
+    const hour = Intl.DateTimeFormat("it-IT", {
+      hour: "2-digit",
+    })
+      .format(Date.now())
+      .split(" ")[0];
+    const response = await axios.get(
+      `http://localhost:3001/api/hourMoodGenre/${hour}`
+    );
+    const mood = response.data[0];
+    const splitMood = mood.mood.split("/");
+    const splitGenre = mood.genre_name.split("/");
+    setGenre(splitGenre[splitGenre.length - 1]);
+    setMood(splitMood[splitMood.length - 1]);
+
+    if (mood === undefined) {
+      return "happy";
+    }
+  }
   useEffect(() => {
     var suggestedUsers = [];
     axios
@@ -43,10 +63,14 @@ function Home(props) {
       })
       .finally(() => {
         setSuggestedUsers(suggestedUsers);
+      })
+      .then(async () => {
+        await getMood();
+      })
+      .then(() => {
+        setLoading(false);
+        //Everything is loaded
       });
-    // axios.get(`http://localhost:3001/api/genre/${1204}`).then((response) => {
-    //   setGenre(response.data.genre);
-    // });
   }, []);
 
   return (
@@ -57,22 +81,28 @@ function Home(props) {
         <Heading as="h2" size="lg" padding="4">
           Suggested users
         </Heading>
-        <Provider>
-          <Carousel gap={10}>{suggestedUsers}</Carousel>
-          <Flex justifyContent="space-between" padding="4">
-            <LeftButton />
-            <RightButton />
-          </Flex>
-        </Provider>
-        <Heading as="h2" size="lg" padding="4">
-          Hey, it's{" "}
-          {Intl.DateTimeFormat("en-US", {
-            weekday: "long",
-            hour: "2-digit",
-            minute: "2-digit",
-          }).format(Date.now())}{" "}
-          let's plays some {genre}
-        </Heading>
+        {loading ? (
+          <Spinner size={"xl"} />
+        ) : (
+          <>
+            <Provider>
+              <Carousel gap={5}>{suggestedUsers}</Carousel>
+              <Flex justifyContent="space-between" padding="4">
+                <LeftButton />
+                <RightButton />
+              </Flex>
+            </Provider>
+            <Heading as="h2" size="lg" padding="4">
+              Hey, it's{" "}
+              {Intl.DateTimeFormat("en-US", {
+                weekday: "long",
+                hour: "2-digit",
+                minute: "2-digit",
+              }).format(Date.now())}{" "}
+              are you feeling {mood}? Let's play some {genre}!
+            </Heading>
+          </>
+        )}
       </Container>
     </>
   );

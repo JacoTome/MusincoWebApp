@@ -47,7 +47,6 @@ app.get("/api/users/:id", async (req, res) => {
           finalRes.instrument.push(data.instrument);
         }
       }
-      console.log(finalRes);
       res.send(finalRes);
     }
   });
@@ -97,6 +96,54 @@ app.get("/api/suggestedUsers/:id", async (req, res) => {
       var splittedValue = decodedValue.split("/");
       var id = splittedValue[splittedValue.length - 1];
       rowData[decodeURI(key)] = id;
+    }
+    resData.push(rowData);
+  });
+  stream.on("error", console.error);
+  stream.on("end", () => {
+    res.send(resData);
+  });
+});
+
+app.get("/api/hourmood/:id", async (req, res) => {
+  const stream = await client.query.select(query.hourMood(req.params.id));
+  resData = [];
+  stream.on("data", (row) => {
+    rowData = {};
+    for (const [key, value] of Object.entries(row)) {
+      rowData[decodeURI(key)] = decodeURI(value.value);
+    }
+    resData.push(rowData);
+  });
+  stream.on("error", console.error);
+  stream.on("end", () => {
+    res.send(resData);
+  });
+});
+
+app.get("/api/genremood/:id", async (req, res) => {
+  const stream = await client.query.select(query.genreMood(req.params.id));
+  resData = [];
+  stream.on("data", (row) => {
+    rowData = {};
+    for (const [key, value] of Object.entries(row)) {
+      rowData[decodeURI(key)] = decodeURI(value.value);
+    }
+    resData.push(rowData);
+  });
+  stream.on("error", console.error);
+  stream.on("end", () => {
+    res.send(resData);
+  });
+});
+
+app.get("/api/hourMoodGenre/:id", async (req, res) => {
+  const stream = await client.query.select(query.hourMoodGenre(req.params.id));
+  resData = [];
+  stream.on("data", (row) => {
+    rowData = {};
+    for (const [key, value] of Object.entries(row)) {
+      rowData[decodeURI(key)] = decodeURI(value.value);
     }
     resData.push(rowData);
   });
