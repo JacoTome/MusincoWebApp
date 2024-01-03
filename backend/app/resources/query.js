@@ -62,9 +62,9 @@ module.exports = {
       SELECT DISTINCT ?others
       WHERE {
          # ?user sostituibile con [mo:uuid 1234]
-         #BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)
+        BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)
         ?user foaf:based_near ?location ;
-              musico:plays_genre ?genre .
+             musico:plays_genre ?genre .
         ?others foaf:based_near ?location ;
                # musico:plays_genre ?genre ;  
         # musico:plays_genre [ mo:similar_to ?genre ] .
@@ -118,7 +118,7 @@ module.exports = {
     const query =
       PREFIX +
       `
-    SELECT ?mood ?genre_name
+    SELECT ?mood ?genre_name ?genre
     WHERE {
       <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/hour_${hour}> musincoo:popular_mood ?mood .
          ?genre musincoo:popular_mood ?mood ;
@@ -126,7 +126,18 @@ module.exports = {
          schema:name ?genre_name.
 
     }
-    limit 10
+  `;
+    return decodeURI(query);
+  },
+  instrGenre: function (instr) {
+    const query =
+      PREFIX +
+      `
+    SELECT ?genre_name
+    WHERE {
+      <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${instr}> musincoo:used_to_play/schema:name ?genre_name .
+
+    }
   `;
     return decodeURI(query);
   },

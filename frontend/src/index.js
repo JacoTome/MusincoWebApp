@@ -2,15 +2,33 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Router,
+  Route,
+  Link,
+  browserHistory,
+  Inde,
+} from "react-router-dom";
 import Home from "./routes/Home";
 import Profile from "./routes/Profile";
+import Login from "./routes/Login";
+import Register from "./routes/Register";
 import { ChakraProvider } from "@chakra-ui/react";
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/signin",
+    element: <Login />,
+  },
+  {
+    path: "/home",
     element: <Home />,
+  },
+  {
+    path: "/signup",
+    element: <Register />,
   },
   {
     path: "/profile",
