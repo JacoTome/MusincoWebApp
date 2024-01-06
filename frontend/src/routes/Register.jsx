@@ -5,18 +5,13 @@ import {
   FormLabel,
   Box,
   Button,
-  Checkbox,
   Container,
-  Divider,
-  Heading,
-  HStack,
   Input,
-  Link,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import { PasswordField } from "../components/PasswordField";
-import { Navigate, redirect } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 export default class Register extends Component {
   constructor(props) {
@@ -28,6 +23,7 @@ export default class Register extends Component {
       username: "",
       error: false,
       errorMessage: "",
+      created: false,
     };
   }
 
@@ -39,24 +35,23 @@ export default class Register extends Component {
       username: this.state.username,
     };
 
-    console.table(signupData);
     await authService
       .register(signupData.username, signupData.email, signupData.password)
       .then((response) => {
-        console.log(response.data.message);
+        if (response.status === 200) {
+          console.log("Successfully registered");
+          this.setState({
+            created: true,
+          });
+        } else {
+          console.log("Failed to register");
+        }
       })
       .catch((error) => {
-        console.log(error);
         this.setState({
           error: true,
-          errorMessage: error.message,
+          errorMessage: error.response.data.message,
         });
-      })
-      .finally(() => {
-        // redirect if there is no error
-        if (!this.state.error) {
-          redirect("/login");
-        }
       });
   };
 
@@ -67,7 +62,10 @@ export default class Register extends Component {
         py={{ base: "12", md: "24" }}
         px={{ base: "0", sm: "8" }}
       >
-        <Stack spacing="8">
+        <Stack>
+          <Text textStyle="h2" textAlign="center">
+            Register
+          </Text>
           <Text
             textStyle="sm"
             textAlign="center"
@@ -75,8 +73,14 @@ export default class Register extends Component {
             maxW="md"
             mx="auto"
           >
-            {this.state.error ? this.state.errorMessage : ""}
+            {this.state.error ? (
+              <> {this.state.errorMessage}</>
+            ) : (
+              <>Create an account to start using the app</>
+            )}
           </Text>
+        </Stack>
+        <Stack spacing="8">
           <Box
             py={{ base: "0", sm: "8" }}
             px={{ base: "4", sm: "10" }}
@@ -126,6 +130,7 @@ export default class Register extends Component {
                 </Stack>
               </Stack>
             </form>
+            {this.state.created ? <Navigate to="/signin" /> : <></>}
           </Box>
         </Stack>
       </Container>

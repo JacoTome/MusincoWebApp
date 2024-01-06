@@ -16,13 +16,15 @@ module.exports = {
     const query =
       PREFIX +
       ` SELECT *
-    WHERE {
-    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> foaf:firstName ?name;
-        foaf:lastName ?surname;
-      musico:plays_instrument/schema:name ?instrument;
+      WHERE {
+      BIND(<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> AS ?user)
+      ?user foaf:firstName ?firstName.
+      OPTIONAL {?user foaf:surname ?surname}.
+      OPTIONAL {?user musinco:username ?username}.
+      OPTIONAL {?user musico:plays_instrument/schema:name ?instrument}.
         
     }
-    LIMIT 10
+ 
     
     `;
     return decodeURI(query);

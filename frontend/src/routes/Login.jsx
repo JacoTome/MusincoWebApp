@@ -15,7 +15,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { PasswordField } from "../components/PasswordField";
-import axios from "axios";
 import authService from "../services/auth.service";
 import { withRouter } from "../common/with-router";
 class Login extends Component {
@@ -70,7 +69,7 @@ class Login extends Component {
                 Log in to your account
               </Heading>
               <Text color="fg.muted">
-                Don't have an account? <Link href="#">Sign up</Link>
+                Don't have an account? <Link href="/signup">Sign up</Link>
               </Text>
             </Stack>
           </Stack>
@@ -100,14 +99,14 @@ class Login extends Component {
                       id="username"
                       type="username"
                       onChange={(event) => {
-                        this.state.username = event.target.value;
+                        this.setState({ username: event.target.value });
                       }}
                     />
                   </FormControl>
 
                   <PasswordField
                     onChange={(event) => {
-                      this.state.password = event.target.value;
+                      this.setState({ password: event.target.value });
                     }}
                   />
                 </Stack>

@@ -4,6 +4,11 @@ const User = db.user;
 const Role = db.role;
 
 const Op = db.Sequelize.Op;
+const sparqlClient = require("sparql-http-client");
+const endpointUrl = process.env.JENA_ENDPOINT_UPDATE
+const client = new sparqlClient({ updateUrl: endpointUrl });
+
+const query = require("../resources/update");
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -15,7 +20,21 @@ exports.signup = (req, res) => {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 8),
   })
-    .then((user) => {
+    .then(async (user) => {
+      const data = {
+        id: user.user_id,
+        username: user.username,
+        email: user.email
+      }
+      try {
+        await client.query.update(query.users(data)).then(() => {
+          console.log("User created successfully in Jena")
+        })
+
+      } catch (err) {
+        console.log(err)
+      }
+
       if (req.body.roles) {
         Role.findAll({
           where: {

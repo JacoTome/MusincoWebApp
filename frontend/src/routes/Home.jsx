@@ -8,9 +8,6 @@ import {
   Divider,
   Heading,
   Spinner,
-  List,
-  UnorderedList,
-  ListItem,
   Stack,
 } from "@chakra-ui/react";
 import {
@@ -88,7 +85,7 @@ export default class Home extends Component {
     const response = await axios.get(
       `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`
     );
-    for (const [_, value] of Object.entries(response.data)) {
+    for (const [key, value] of Object.entries(response.data)) {
       const user = await this.getUserInfo(value.others);
       suggestedUsers.push(user);
     }

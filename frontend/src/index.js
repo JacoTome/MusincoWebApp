@@ -2,15 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Router,
-  Route,
-  Link,
-  browserHistory,
-  Inde,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./routes/Home";
 import Profile from "./routes/Profile";
 import Login from "./routes/Login";
@@ -24,6 +16,10 @@ const router = createBrowserRouter([
   },
   {
     path: "/home",
+    element: <Home />,
+  },
+  {
+    path: "/",
     element: <Home />,
   },
   {

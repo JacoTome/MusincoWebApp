@@ -1,10 +1,13 @@
 const { authJwt } = require("../middleware");
 const controller = require("../controllers/user.controller");
 const query = require("../resources/query");
-
+const update = require("../resources/update");
 const sparqlClient = require("sparql-http-client");
-const endpointUrl = process.env.JENA_ENDPOINT;
-const client = new sparqlClient({ endpointUrl });
+const endpointUrl = process.env.JENA_ENDPOINT_QUERY;
+const client = new sparqlClient({
+  endpointUrl: endpointUrl,
+  updateUrl: process.env.JENA_ENDPOINT_UPDATE
+});
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -50,7 +53,7 @@ module.exports = function (app) {
         return;
       } else {
         let finalRes = {
-          name: resData[0].name,
+          name: resData[0].firstName,
           surname: resData[0].surname,
           instrument: [],
         };
@@ -221,4 +224,26 @@ module.exports = function (app) {
       res.send(resData);
     });
   });
-};
+
+  app.post("/api/users/:id", async (req, res) => {
+    console.log(req.body);
+    for (val in req.body) {
+      console.log(val);
+      switch (val) {
+        case "firstName":
+          await client.query.update(update.firstName(req.body)).then(() => {
+            console.log("User Name updated successfully in Jena");
+          });
+          break;
+        case "surname":
+          await client.query.update(update.surname(req.body)).then(() => {
+            console.log("User Surname updated successfully in Jena");
+          });
+          break;
+        default:
+          console.log("Invalid field");
+      }
+    }
+    res.send("User updated successfully");
+  });
+}
