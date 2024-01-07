@@ -33,7 +33,7 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
-  app.get("/api/users/:id", async (req, res) => {
+  app.get("/api/users/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.users(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -55,6 +55,7 @@ module.exports = function (app) {
         let finalRes = {
           name: resData[0].firstName,
           surname: resData[0].surname,
+          username: resData[0].username,
           instrument: [],
         };
         for (data of resData) {
@@ -67,7 +68,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/instruments/:id", async (req, res) => {
+  app.get("/api/instruments/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.instrument(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -86,7 +87,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/genres/:id", async (req, res) => {
+  app.get("/api/genres/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.genres(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -101,7 +102,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/suggestedUsers/:id", async (req, res) => {
+  app.get("/api/suggestedUsers/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(
       query.suggestedUsers(req.params.id)
     );
@@ -122,7 +123,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/hourmood/:id", async (req, res) => {
+  app.get("/api/hourmood/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.hourMood(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -138,7 +139,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/genremood/:id", async (req, res) => {
+  app.get("/api/genremood/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.genreMood(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -154,7 +155,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/hourMoodGenre/:id", async (req, res) => {
+  app.get("/api/hourMoodGenre/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(
       query.hourMoodGenre(req.params.id)
     );
@@ -209,7 +210,7 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/instrGenre/:id", async (req, res) => {
+  app.get("/api/instrGenre/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.instrGenre(req.params.id));
     resData = [];
     stream.on("data", (row) => {
@@ -225,23 +226,30 @@ module.exports = function (app) {
     });
   });
 
-  app.post("/api/users/:id", async (req, res) => {
+  app.post("/api/users/:id", [authJwt.verifyToken], async (req, res) => {
     console.log(req.body);
     for (val in req.body) {
-      console.log(val);
       switch (val) {
-        case "firstName":
+        case "name":
+          console.log("Case name")
           await client.query.update(update.firstName(req.body)).then(() => {
             console.log("User Name updated successfully in Jena");
           });
           break;
         case "surname":
+          console.log("Case surname")
           await client.query.update(update.surname(req.body)).then(() => {
             console.log("User Surname updated successfully in Jena");
           });
           break;
+        case "username":
+          console.log("Case username")
+          await client.query.update(update.username(req.body)).then(() => {
+            console.log("User Username updated successfully in Jena");
+          });
+          break;
         default:
-          console.log("Invalid field");
+          break;
       }
     }
     res.send("User updated successfully");

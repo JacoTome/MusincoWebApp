@@ -18,12 +18,13 @@ import {
 } from "chakra-ui-carousel";
 import authService from "../services/auth.service";
 import { Navigate } from "react-router-dom";
+import authHeader from "../services/auth-headers";
 
 export default class Home extends Component {
   constructor(props) {
     super(props);
     this.getUserInfo = this.getUserInfo.bind(this);
-    this.getMood = this.getMood.bind(this);
+    this.getMoodGenre = this.getMoodGenre.bind(this);
     this.getSuggestedUsers = this.getSuggestedUsers.bind(this);
     this.content = this.content.bind(this);
     this.state = {
@@ -36,7 +37,8 @@ export default class Home extends Component {
   }
 
   async getUserInfo(id) {
-    const response = await axios.get(`http://localhost:3001/api/users/${id}`);
+    const response = await axios.get(`http://localhost:3001/api/users/${id}`, { headers: authHeader() });
+
     const user = response.data;
     return (
       <CardUser
@@ -49,16 +51,16 @@ export default class Home extends Component {
     );
   }
 
-  async getMood() {
+  async getMoodGenre() {
     const hour = Intl.DateTimeFormat("it-IT", {
       hour: "2-digit",
     })
       .format(Date.now())
       .split(" ")[0];
     const response = await axios.get(
-      `http://localhost:3001/api/hourMoodGenre/${hour}`
+      `http://localhost:3001/api/hourMoodGenre/${hour}`,
+      { headers: authHeader() }
     );
-
     if (response.data.mood === "") {
       this.setState({ mood: "Happy" });
     } else {
@@ -67,7 +69,7 @@ export default class Home extends Component {
     }
 
     if (response.data.genre.length === 0) {
-      this.setState({ genre: ["Rock"] });
+      this.setState({ genres: ["Rock"] });
       return;
     } else {
       var genreToAdd = [];
@@ -83,7 +85,8 @@ export default class Home extends Component {
   async getSuggestedUsers() {
     const suggestedUsers = [];
     const response = await axios.get(
-      `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`
+      `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`,
+      { headers: authHeader() }
     );
     for (const [key, value] of Object.entries(response.data)) {
       const user = await this.getUserInfo(value.others);
@@ -96,7 +99,7 @@ export default class Home extends Component {
       const getAll = async () => {
         await this.getUserInfo(this.state.currentUser.id);
         await this.getSuggestedUsers();
-        await this.getMood();
+        await this.getMoodGenre();
       };
       getAll().then(() => {
         this.setState({ loading: false });
@@ -133,19 +136,22 @@ export default class Home extends Component {
                   minute: "2-digit",
                 }).format(Date.now())}{" "}
                 are you feeling {this.state.mood}? Let's play some{" "}
-                {this.state.genre[0]}!
+                {this.state.genres[0]}!
               </Heading>
               <Heading as="h3" size="lg" padding="4">
                 Or maybe you prefer...
               </Heading>
               <Stack direction={"row"} spacing={"3"}>
-                {this.state.genre.splice(1).map((genre) => (
-                  <p key={genre}>{genre}</p>
-                ))}
+                {this.state.genres.splice(1).map((i, genre) => {
+                  console.log(genre);
+                  return (
+                    < p key={genre + i}>{ }</p>
+                  )
+                })}
               </Stack>
             </>
           )}
-        </Container>
+        </Container >
       </>
     );
   }

@@ -5,62 +5,18 @@ import {
   Container,
   StackDivider,
   Stack,
-  Editable,
   Text,
-  EditablePreview,
-  EditableInput,
-  useEditableControls,
-  ButtonGroup,
   Flex,
-  IconButton,
-  Input,
-  Divider,
   Spacer,
   Button,
   Heading,
+  Grid,
+  GridItem,
+  StackItem,
 } from "@chakra-ui/react";
-import { EditIcon, CheckIcon, CloseIcon } from "@chakra-ui/icons";
-
-function CustomControlsExample(props) {
-  /* Here's a custom control */
-  function EditableControls() {
-    const {
-      isEditing,
-      getSubmitButtonProps,
-      getCancelButtonProps,
-      getEditButtonProps,
-    } = useEditableControls();
-
-    return isEditing ? (
-      <ButtonGroup justifyContent="center" size="sm">
-        <IconButton icon={<CheckIcon />} {...getSubmitButtonProps()} />
-        <IconButton icon={<CloseIcon />} {...getCancelButtonProps()} />
-      </ButtonGroup>
-    ) : (
-      <Flex justifyContent="center">
-        <IconButton size="sm" icon={<EditIcon />} {...getEditButtonProps()} />
-      </Flex>
-    );
-  }
-
-  console.log(props.props);
-  return (
-
-    < Editable
-      textAlign="center"
-      defaultValue={props.props}
-      fontSize="2xl"
-      isPreviewFocusable={false}
-    >
-      <Flex direction={"row"} align={"center"}>
-        <EditablePreview />
-        <Input as={EditableInput} onChange={props.onChange} />
-        <Spacer />
-        <EditableControls />
-      </Flex>
-    </Editable >
-  );
-}
+import Loading from "../components/Loading";
+import EditField from "../components/EditField";
+import authHeader from "../services/auth-headers";
 
 export default class Profile extends Component {
   constructor(props) {
@@ -71,41 +27,46 @@ export default class Profile extends Component {
       user: {
         ...JSON.parse(localStorage.getItem("user")),
         surname: "",
-        instrument: "",
-        genre: "",
+        instruments: ['Chitarra'],
+        genres: ['Rock'],
         name: "",
       },
+      newUser: {
+      }
     };
   }
 
   async updateUser() {
+
+
+    let updatedData = {
+      id: this.state.user.id,
+    }
+    for (const [key, value] of Object.entries(this.state.newUser)) {
+      if (value !== this.state.user[key] && value !== "" && value !== null) {
+        updatedData[key] = value
+      }
+    }
     await axios
       .post(`http://localhost:3001/api/users/${this.state.user.id}`, {
-        id: this.state.user.id,
-        firstName: this.state.user.name,
-        surname: this.state.user.surname,
-        username: this.state.user.username,
-        email: this.state.user.email,
-        instrument: this.state.user.instrument,
-        genre: this.state.user.genre,
-      })
-      .then((response) => {
-        console.log(response);
-      }).catch((error) => {
+        ...updatedData
+      }, { headers: authHeader() }).catch((error) => {
         console.log(error);
+      }).finally(() => {
+        window.location.reload();
       });
   }
 
   componentDidMount() {
     axios
-      .get(`http://localhost:3001/api/users/${this.state.user.id}`)
+      .get(`http://localhost:3001/api/users/${this.state.user.id}`,
+        { headers: authHeader() })
       .then((response) => {
         this.setState(
           {
             user: {
               ...this.state.user,
-              name: response.data.name,
-              surname: response.data.surname,
+              ...response.data,
             }
           }
         );
@@ -122,7 +83,7 @@ export default class Profile extends Component {
       <>
         <Header user={this.state.user} />
         <Container maxWidth={"1366px"}>
-          {this.state.loading ? <div>Loading...</div> : (
+          {this.state.loading ? <Loading /> : (
             <Stack>
               <Container>
                 <Flex direction={"row"} align={"baseline"}>
@@ -135,100 +96,148 @@ export default class Profile extends Component {
                 </Flex>
               </Container>
               <StackDivider />
-              <Container w={"100%"}>
-                <Flex direction={"column"}>
-                  <Text>Username</Text>
-                  <CustomControlsExample
-                    props={this.state.user.username}
-                    onChange={(value) => {
-                      this.setState({
-                        user: {
-                          ...this.state.user,
-                          username: value.target.value,
-                        },
-                      });
-                    }}
-                  />
-                </Flex>
-                <Divider />
-                <Flex direction={"column"}>
-                  <Text>Name</Text>
-                  <CustomControlsExample
-                    props={this.state.user.name}
-                    onChange={(value) => {
-                      this.setState((prevState) => ({
-                        user: {
-                          ...prevState.user,
-                          name: value.target.value,
-                        },
-                      }));
-                    }}
-                  />
-                </Flex>
-                <Divider />
-                <Flex direction={"column"}>
-                  <Text>Surname</Text>
-                  <CustomControlsExample
-                    props={this.state.user.surname}
-                    onChange={(value) => {
-                      this.setState({
-                        user: {
-                          ...this.state.user,
-                          surname: value.target.value,
-                        },
-                      });
-                    }}
-                  />
-                </Flex>
-                <Divider />
-                <Flex direction={"column"}>
-                  <Text>Email</Text>
-                  <CustomControlsExample
-                    props={this.state.user.email}
-                    onChange={(value) => {
-                      this.setState({
-                        user: {
-                          ...this.state.user,
-                          email: value.target.value,
-                        },
-                      });
-                    }}
-                  />
-                </Flex>
-                <Divider />
-                <Flex direction={"column"}>
-                  <Text>Instrument</Text>
-                  <CustomControlsExample
-                    props={this.state.user.instrument}
-                    onChange={(value) => {
-                      this.setState({
-                        user: {
-                          ...this.state.user,
-                          instrument: value.target.value,
-                        },
-                      });
-                    }}
-                  />
-                </Flex>
-                <Divider />
-                <Flex direction={"column"}>
-                  <Text>Genre</Text>
-                  <CustomControlsExample
-                    props={this.state.user.genre}
-                    onChange={(value) => {
-                      this.setState({
-                        user: {
-                          ...this.state.user,
-                          genre: value.target.value,
-                        },
-                      });
-                    }}
-                  />
-                </Flex>
-              </Container>
+              <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+                <GridItem colSpan={1} border={'2px'} borderRadius={'5px'} padding={'10px'}>
+                  <Heading as="h2" size="md" padding={"5px"} textAlign={'center'}>
+                    About you
+                  </Heading>
+                  <Flex direction={"column"}>
+                    <Text>Username</Text>
+                    <EditField
+                      props={this.state.user.username}
+                      onChange={(value) => {
+                        this.setState({
+                          newUser: {
+                            ...this.state.newUser,
+                            username: value.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </Flex>
+                  <Flex direction={"column"}>
+                    <Text>Name</Text>
+                    <EditField
+                      props={this.state.user.name}
+                      onChange={(value) => {
+                        this.setState({
+                          newUser: {
+                            ...this.state.newUser,
+                            name: value.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </Flex>
+                  <Flex direction={"column"}>
+                    <Text>Surname</Text>
+                    <EditField
+                      props={this.state.user.surname}
+                      onChange={(value) => {
+                        this.setState({
+                          newUser: {
+                            ...this.state.newUser,
+                            surname: value.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </Flex>
+                  <Flex direction={"column"}>
+                    <Text>Email</Text>
+                    <EditField
+                      props={this.state.user.email}
+                      onChange={(value) => {
+                        this.setState({
+                          newUser: {
+                            ...this.state.newUser,
+                            email: value.target.value,
+                          },
+                        });
+                      }}
+                    />
+                  </Flex>
+                </GridItem>
+                <GridItem colSpan={1} border={'2px'} borderRadius={'5px'} padding={'10px'}>
+                  <Flex direction={"column"}>
+                    <Heading as="h2" size="md" padding={"5px"} textAlign={'center'}>
+                      Your musical preferences
+                    </Heading>
+                    <Stack>
+                      <StackItem>
+                        <Text>Genres you like</Text>
+                        {
+                          this.state.user.genres.map((genre, index) => {
+                            return (
+                              <p key={index}>{genre}</p>
+                            );
+                          }
+                          )
+                        }
+                      </StackItem>
+                      <StackDivider />
+                      <StackItem>
+                        <Text>Instrument you play</Text>
+                        {
+                          this.state.user.instruments.map((genre, index) => {
+                            return (
+                              <p key={index}>{genre}</p>
+                            );
+                          }
+                          )
+                        }
+                      </StackItem>
+                    </Stack>
+                  </Flex>
+                </GridItem>
+                <GridItem colSpan={1} border={'2px'} borderRadius={'5px'} padding={'10px'}>
+                  <Heading as="h2" size="md" padding={"5px"} textAlign={'center'}>
+                    Your participation
+                  </Heading>
+                  <Stack>
+                    <StackItem>
+                      <Text>Events you are attending</Text>
+                    </StackItem>
+                  </Stack>
+                </GridItem>
+              </Grid>
             </Stack>)}
-        </Container>
+        </Container >
       </>
     );
   }
 }
+
+
+
+//       <Flex direction={"column"}>
+//         <Text>Instrument</Text>
+//         <EditField
+//           props={this.state.user.instrument}
+//           onChange={(value) => {
+//             this.setState({
+//               user: {
+//                 ...this.state.user,
+//                 instrument: value.target.value,
+//               },
+//             });
+//           }}
+//         />
+//       </Flex>
+//       <Divider />
+//       <Flex direction={"column"}>
+//         <Text>Genre</Text>
+//         <EditField
+//           props={this.state.user.genre}
+//           onChange={(value) => {
+//             this.setState({
+//               user: {
+//                 ...this.state.user,
+//                 genre: value.target.value,
+//               },
+//             });
+//           }}
+//         />
+//       </Flex>
+//     </Stack >)
+// }
