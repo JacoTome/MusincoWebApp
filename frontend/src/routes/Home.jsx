@@ -28,7 +28,7 @@ export default class Home extends Component {
     this.getSuggestedUsers = this.getSuggestedUsers.bind(this);
     this.content = this.content.bind(this);
     this.state = {
-      currentUser: authService.getCurrentUser(),
+      currentUser: authService.getCurrentUser().user,
       suggestedUsers: [],
       genres: [],
       mood: "",
@@ -37,19 +37,16 @@ export default class Home extends Component {
   }
 
   async getUserInfo(id) {
-    const response = await axios.get(`http://localhost:3001/api/users/${id}`, { headers: authHeader() });
-
-    const user = response.data;
-    return (
-      <CardUser
-        key={id}
-        id={id}
-        name={user.name}
-        surname={user.surname}
-        instruments={user.instrument}
-      />
-    );
+    await axios.get(`http://localhost:3001/api/users/${id}`, { headers: authHeader() })
+      .then((response) => {
+        this.setState({
+          ...this.state,
+          currentUser: { ...this.state.currentUser, ...response.data },
+        }
+        );
+      })
   }
+
 
   async getMoodGenre() {
     const hour = Intl.DateTimeFormat("it-IT", {

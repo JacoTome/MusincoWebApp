@@ -86,23 +86,50 @@ exports.signin = (req, res) => {
         algorithm: "HS256",
         allowInsecureKeySizes: true,
         expiresIn: 86400, // 24 hours
+        // expiresIn: '' // 10 minutes
       });
+
 
       var authorities = [];
       user.getRoles().then((roles) => {
         for (let i = 0; i < roles.length; i++) {
           authorities.push("ROLE_" + roles[i].name.toUpperCase());
         }
-        res.status(200).send({
-          id: user.user_id,
-          username: user.username,
-          email: user.email,
-          roles: authorities,
-          accessToken: token,
-        });
+
+        res.status(200).send(
+          {
+            user: {
+              id: user.user_id,
+              username: user.username,
+              email: user.email,
+            },
+            roles: authorities,
+            accessToken: token,
+          });
       });
     })
     .catch((err) => {
       res.status(500).send({ message: err.message });
     });
+};
+
+exports.refresh = (req, res) => {
+  console.log(req.cookies)
+  if (req.cookies?.jwt) {
+    const refreshToken = req.cookies.jwt;
+    jwt.verify(refreshToken, config.refreshSecret, (err, user) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+      const accessToken = jwt.sign({ id: user.user_id }, config.secret, {
+        algorithm: "HS256",
+        allowInsecureKeySizes: true,
+        // expiresIn: 86400, // 24 hours
+        expiresIn: '10m' // 10 minutes
+      });
+      res.json({ accessToken });
+    });
+  } else {
+    return res.sendStatus(401);
+  }
 };

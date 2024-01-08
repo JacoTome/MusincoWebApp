@@ -41,8 +41,11 @@ class Login extends Component {
     await authService
       .login(loginData.username, loginData.password)
       .then((res) => {
-        console.log("RESPONSE");
-        console.log(this.props);
+        if (res.status === 200) {
+          this.setState({
+            logged: true,
+          });
+        }
         this.props.router.navigate("/home");
         window.location.reload();
       })
@@ -53,7 +56,6 @@ class Login extends Component {
         });
       });
   };
-  componentDidMount() {}
 
   render() {
     return (

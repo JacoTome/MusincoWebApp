@@ -44,6 +44,19 @@ module.exports = {
     `;
     return decodeURI(query);
   },
+  userGenres: function (id) {
+    const query =
+      PREFIX +
+      `SELECT ?genre
+    WHERE {
+    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${id}> musico:plays_genre/schema:name ?genre.
+    }
+    LIMIT 10
+    `;
+    return decodeURI(query);
+  },
+
+
   genres: function (id) {
     const query =
       PREFIX +

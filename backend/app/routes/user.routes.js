@@ -33,6 +33,7 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+
   app.get("/api/users/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.users(req.params.id));
     resData = [];
@@ -65,6 +66,32 @@ module.exports = function (app) {
         }
         res.send(finalRes);
       }
+    });
+  });
+
+  app.get("/api/userGenres/:id", [authJwt.verifyToken], async (req, res) => {
+    const stream = await client.query.select(query.userGenres(req.params.id));
+    resData = [];
+    stream.on("data", (row) => {
+      rowData = {};
+      for (const [key, value] of Object.entries(row)) {
+        var decodedValue = decodeURI(value.value);
+        var splittedValue = decodedValue.split("/");
+        var id = splittedValue[splittedValue.length - 1];
+        rowData[decodeURI(key)] = id;
+
+      }
+      resData.push(rowData);
+    });
+    stream.on("error", console.error);
+    stream.on("end", () => {
+      let finalRes = []
+      for (const [key, value] of Object.entries(resData)) {
+        finalRes.push(value.genre);
+      }
+      res.send({
+        genres: finalRes
+      });
     });
   });
 

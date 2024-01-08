@@ -13,9 +13,12 @@ import {
 } from "@chakra-ui/react";
 import { Container } from "@chakra-ui/react";
 import AuthService from "../services/auth.service";
+import { Navigate } from "react-router-dom";
 export default function Header(props) {
   return (
     <>
+      {props.user.username === "" ?
+        (<Navigate to="/login" />) : null}
       <Container maxW="container.xl" padding="4">
         <Flex>
           <Breadcrumb>
@@ -41,7 +44,6 @@ export default function Header(props) {
                 <MenuItem
                   onClick={() => {
                     AuthService.logout();
-                    window.location.reload();
                   }}
                 >
                   Logout

@@ -13,32 +13,53 @@ import {
   Grid,
   GridItem,
   StackItem,
+  Tag,
+  HStack,
 } from "@chakra-ui/react";
 import Loading from "../components/Loading";
 import EditField from "../components/EditField";
 import authHeader from "../services/auth-headers";
+import { Navigate } from "react-router-dom";
 
 export default class Profile extends Component {
   constructor(props) {
     super(props);
+    this.getUserInfo = this.getUserInfo.bind(this);
+    this.getUserGenres = this.getUserGenres.bind(this);
     this.updateUser = this.updateUser.bind(this);
-    this.state = {
-      loading: true,
-      user: {
-        ...JSON.parse(localStorage.getItem("user")),
-        surname: "",
-        instruments: ['Chitarra'],
-        genres: ['Rock'],
-        name: "",
-      },
-      newUser: {
-      }
-    };
+    const userStorage = localStorage.getItem("user");
+    if (userStorage) {
+      this.state = {
+        loading: true,
+        user: {
+          ...JSON.parse(userStorage).user,
+          surname: "",
+          instruments: ['Chitarra'],
+          genres: ['Rock'],
+          name: "",
+        },
+        newUser: {
+        }
+      };
+    } else {
+      this.state = {
+        loading: true,
+        user: {
+          id: "",
+          username: "",
+          surname: "",
+          instruments: ['Chitarra'],
+          genres: ['Rock'],
+          name: "",
+        },
+        newUser: {
+        }
+      };
+    }
+
   }
 
   async updateUser() {
-
-
     let updatedData = {
       id: this.state.user.id,
     }
@@ -57,8 +78,8 @@ export default class Profile extends Component {
       });
   }
 
-  componentDidMount() {
-    axios
+  async getUserInfo() {
+    await axios
       .get(`http://localhost:3001/api/users/${this.state.user.id}`,
         { headers: authHeader() })
       .then((response) => {
@@ -72,9 +93,37 @@ export default class Profile extends Component {
         );
       }).catch((error) => {
         console.log(error);
-      }).finally(() => {
-        this.setState({ loading: false });
       });
+  }
+
+  async getUserGenres() {
+    await axios
+      .get(`http://localhost:3001/api/userGenres/${this.state.user.id}/`,
+        { headers: authHeader() })
+      .then((response) => {
+        this.setState
+          ({
+            user: {
+              ...this.state.user,
+              genres: response.data.genres,
+            }
+          });
+      }).catch((error) => {
+
+        console.log(error);
+      });
+  }
+  async componentDidMount() {
+    const getInfo = async () => {
+      await this.getUserInfo();
+      await this.getUserGenres();
+    }
+    getInfo().then(() => {
+      this.setState({
+        loading: false,
+      });
+    })
+
   }
 
 
@@ -83,6 +132,7 @@ export default class Profile extends Component {
       <>
         <Header user={this.state.user} />
         <Container maxWidth={"1366px"}>
+          {this.state.user.id === "" ? <Navigate to="/login" /> : null}
           {this.state.loading ? <Loading /> : (
             <Stack>
               <Container>
@@ -144,14 +194,14 @@ export default class Profile extends Component {
                     />
                   </Flex>
                   <Flex direction={"column"}>
-                    <Text>Email</Text>
+                    <Text>City</Text>
                     <EditField
-                      props={this.state.user.email}
+                      props={this.state.user.city}
                       onChange={(value) => {
                         this.setState({
                           newUser: {
                             ...this.state.newUser,
-                            email: value.target.value,
+                            city: value.target.value,
                           },
                         });
                       }}
@@ -166,14 +216,17 @@ export default class Profile extends Component {
                     <Stack>
                       <StackItem>
                         <Text>Genres you like</Text>
-                        {
-                          this.state.user.genres.map((genre, index) => {
-                            return (
-                              <p key={index}>{genre}</p>
-                            );
+                        <HStack>
+                          {
+                            this.state.user.genres.map((genre, index) => {
+                              return (
+
+                                <Tag key={index}>{genre}</Tag>
+                              );
+                            }
+                            )
                           }
-                          )
-                        }
+                        </HStack>
                       </StackItem>
                       <StackDivider />
                       <StackItem>
