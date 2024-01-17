@@ -6,7 +6,7 @@ const sparqlClient = require("sparql-http-client");
 const endpointUrl = process.env.JENA_ENDPOINT_QUERY;
 const client = new sparqlClient({
   endpointUrl: endpointUrl,
-  updateUrl: process.env.JENA_ENDPOINT_UPDATE
+  updateUrl: process.env.JENA_ENDPOINT_UPDATE,
 });
 
 module.exports = function (app) {
@@ -79,18 +79,17 @@ module.exports = function (app) {
         var splittedValue = decodedValue.split("/");
         var id = splittedValue[splittedValue.length - 1];
         rowData[decodeURI(key)] = id;
-
       }
       resData.push(rowData);
     });
     stream.on("error", console.error);
     stream.on("end", () => {
-      let finalRes = []
+      let finalRes = [];
       for (const [key, value] of Object.entries(resData)) {
         finalRes.push(value.genre);
       }
       res.send({
-        genres: finalRes
+        genres: finalRes,
       });
     });
   });
@@ -129,26 +128,30 @@ module.exports = function (app) {
     });
   });
 
-  app.get("/api/suggestedUsers/:id", [authJwt.verifyToken], async (req, res) => {
-    const stream = await client.query.select(
-      query.suggestedUsers(req.params.id)
-    );
-    resData = [];
-    stream.on("data", (row) => {
-      rowData = {};
-      for (const [key, value] of Object.entries(row)) {
-        var decodedValue = decodeURI(value.value);
-        var splittedValue = decodedValue.split("/");
-        var id = splittedValue[splittedValue.length - 1];
-        rowData[decodeURI(key)] = id;
-      }
-      resData.push(rowData);
-    });
-    stream.on("error", console.error);
-    stream.on("end", () => {
-      res.send(resData);
-    });
-  });
+  app.get(
+    "/api/suggestedUsers/:id",
+    [authJwt.verifyToken],
+    async (req, res) => {
+      const stream = await client.query.select(
+        query.suggestedUsers(req.params.id)
+      );
+      resData = [];
+      stream.on("data", (row) => {
+        rowData = {};
+        for (const [key, value] of Object.entries(row)) {
+          var decodedValue = decodeURI(value.value);
+          var splittedValue = decodedValue.split("/");
+          var id = splittedValue[splittedValue.length - 1];
+          rowData[decodeURI(key)] = id;
+        }
+        resData.push(rowData);
+      });
+      stream.on("error", console.error);
+      stream.on("end", () => {
+        res.send(resData);
+      });
+    }
+  );
 
   app.get("/api/hourmood/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.hourMood(req.params.id));
@@ -258,21 +261,27 @@ module.exports = function (app) {
     for (val in req.body) {
       switch (val) {
         case "name":
-          console.log("Case name")
+          console.log("Case name");
           await client.query.update(update.firstName(req.body)).then(() => {
             console.log("User Name updated successfully in Jena");
           });
           break;
         case "surname":
-          console.log("Case surname")
+          console.log("Case surname");
           await client.query.update(update.surname(req.body)).then(() => {
             console.log("User Surname updated successfully in Jena");
           });
           break;
         case "username":
-          console.log("Case username")
+          console.log("Case username");
           await client.query.update(update.username(req.body)).then(() => {
             console.log("User Username updated successfully in Jena");
+          });
+          break;
+        case "instruments":
+          console.log("Case instruments");
+          await client.query.update(update.instruments(req.body)).then(() => {
+            console.log("User Instruments updated successfully in Jena");
           });
           break;
         default:
@@ -281,4 +290,4 @@ module.exports = function (app) {
     }
     res.send("User updated successfully");
   });
-}
+};

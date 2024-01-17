@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import CardUser from "../components/CardUser";
 import Header from "../components/Header";
 import axios from "axios";
 import {
@@ -37,16 +36,15 @@ export default class Home extends Component {
   }
 
   async getUserInfo(id) {
-    await axios.get(`http://localhost:3001/api/users/${id}`, { headers: authHeader() })
+    await axios
+      .get(`http://localhost:3001/api/users/${id}`, { headers: authHeader() })
       .then((response) => {
         this.setState({
           ...this.state,
           currentUser: { ...this.state.currentUser, ...response.data },
-        }
-        );
-      })
+        });
+      });
   }
-
 
   async getMoodGenre() {
     const hour = Intl.DateTimeFormat("it-IT", {
@@ -85,7 +83,7 @@ export default class Home extends Component {
       `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`,
       { headers: authHeader() }
     );
-    for (const [key, value] of Object.entries(response.data)) {
+    for (const [_, value] of Object.entries(response.data)) {
       const user = await this.getUserInfo(value.others);
       suggestedUsers.push(user);
     }
@@ -111,13 +109,13 @@ export default class Home extends Component {
 
         <Divider />
         <Container maxW="container.xl">
-          <Heading as="h2" size="lg" padding="4">
-            Suggested users
-          </Heading>
           {this.state.loading ? (
             <Spinner size={"xl"} />
           ) : (
             <>
+              <Heading as="h2" size="lg" padding="4">
+                Suggested users
+              </Heading>
               <Provider>
                 <Carousel gap={5}>{this.state.suggestedUsers}</Carousel>
                 <Flex justifyContent="space-between" padding="4">
@@ -141,14 +139,12 @@ export default class Home extends Component {
               <Stack direction={"row"} spacing={"3"}>
                 {this.state.genres.splice(1).map((i, genre) => {
                   console.log(genre);
-                  return (
-                    < p key={genre + i}>{ }</p>
-                  )
+                  return <p key={genre + i}>{}</p>;
                 })}
               </Stack>
             </>
           )}
-        </Container >
+        </Container>
       </>
     );
   }

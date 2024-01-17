@@ -13,10 +13,10 @@ PREFIX mo: <http://purl.org/ontology/mo/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 `;
 module.exports = {
-    users: function (data) {
-        const query =
-            PREFIX +
-            ` INSERT DATA
+  users: function (data) {
+    const query =
+      PREFIX +
+      ` INSERT DATA
          {
         <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
             musinco:username "${data.username}"^^xsd:string; 
@@ -25,12 +25,12 @@ module.exports = {
          }
         
         `;
-        return decodeURI(query);
-    },
-    firstName: function (data) {
-        const query =
-            PREFIX +
-            ` 
+    return decodeURI(query);
+  },
+  firstName: function (data) {
+    const query =
+      PREFIX +
+      ` 
             DELETE  {<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> foaf:firstName ?name}
             WHERE   {<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> foaf:firstName ?name};
 
@@ -41,12 +41,12 @@ module.exports = {
             
         
         `;
-        return decodeURI(query);
-    },
-    surname: function (data) {
-        const query =
-            PREFIX +
-            `
+    return decodeURI(query);
+  },
+  surname: function (data) {
+    const query =
+      PREFIX +
+      `
             DELETE  { <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>  foaf:surname ?name}
             WHERE {
                 <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>  foaf:surname ?name
@@ -57,12 +57,12 @@ module.exports = {
             <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
                 foaf:surname "${data.surname}"^^xsd:string}
         `;
-        return decodeURI(query);
-    },
-    username: function (data) {
-        const query =
-            PREFIX +
-            `
+    return decodeURI(query);
+  },
+  username: function (data) {
+    const query =
+      PREFIX +
+      `
         DELETE  { <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>  musinco:username ?name}
         WHERE {
             <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>  musinco:username ?name
@@ -71,7 +71,18 @@ module.exports = {
         <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
             musinco:username "${data.username}"^^xsd:string}
     `;
-        return decodeURI(query);
-    }
+    return decodeURI(query);
+  },
+  instruments: function (data) {
+    const query =
+      PREFIX +
+      ` INSERT DATA
+         {
+        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
 
-}
+         }
+        
+        `;
+    return decodeURI(query);
+  },
+};
