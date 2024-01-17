@@ -4,7 +4,7 @@ const API_URL = "http://localhost:3001/api/auth/";
 class AuthService {
   login(username, password) {
     return axios
-      .post(API_URL + "signin", {
+      .post(API_URL + "jena/signin", {
         username,
         password,
       })
@@ -21,13 +21,12 @@ class AuthService {
   }
 
   register(username, email, password) {
-    return axios.post(API_URL + "signup", {
+    return axios.post(API_URL + "jena/signup", {
       username,
       email,
       password,
     });
   }
-
 
   getCurrentUser() {
     return JSON.parse(localStorage.getItem("user"));

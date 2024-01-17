@@ -92,7 +92,11 @@ class Login extends Component {
             boxShadow={{ base: "none", sm: "md" }}
             borderRadius={{ base: "none", sm: "xl" }}
           >
-            <form onSubmit={this.signin}>
+            <form
+              onSubmit={(event) => {
+                this.signin(event);
+              }}
+            >
               <Stack spacing="6">
                 <Stack spacing="5">
                   <FormControl>

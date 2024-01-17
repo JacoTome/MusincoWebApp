@@ -24,8 +24,6 @@ module.exports = {
       OPTIONAL {?user musico:plays_instrument/schema:name ?instrument}.
         
     }
- 
-    
     `;
     return decodeURI(query);
   },
@@ -55,7 +53,6 @@ module.exports = {
     `;
     return decodeURI(query);
   },
-
 
   genres: function (id) {
     const query =

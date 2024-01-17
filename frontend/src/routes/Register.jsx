@@ -88,7 +88,12 @@ export default class Register extends Component {
             boxShadow={{ base: "none", sm: "md" }}
             borderRadius={{ base: "none", sm: "xl" }}
           >
-            <form onSubmit={this.signup}>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                this.signup(event);
+              }}
+            >
               <Stack spacing="6">
                 <Stack spacing="5">
                   <FormControl>
