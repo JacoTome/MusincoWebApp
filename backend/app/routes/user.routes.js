@@ -9,6 +9,9 @@ const client = new sparqlClient({
   updateUrl: process.env.JENA_ENDPOINT_UPDATE,
 });
 
+const db = require("../models");
+const Friend = db.friend;
+
 module.exports = function (app) {
   app.use(function (req, res, next) {
     res.header(
@@ -33,6 +36,28 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
+
+  app.get("/api/users/:id/friends", [authJwt.verifyToken], (req, res) => {
+    var ids = [];
+    // Get all friends of a user from db
+    Friend.findAll({ attributes: ["user1_id", "user2_id"] })
+      .then((friends) => {
+        // Get all user ids
+        for (friend of friends) {
+          if (friend.user1_id == req.params.id) {
+            ids.push(friend.user2_id);
+          } else if (friend.user2_id == req.params.id) {
+            ids.push(friend.user1_id);
+          }
+        }
+        res.status(200).send({
+          ids: ids,
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({ message: err.message });
+      });
+  });
 
   app.get("/api/users/:id", [authJwt.verifyToken], async (req, res) => {
     const stream = await client.query.select(query.users(req.params.id));
@@ -148,6 +173,7 @@ module.exports = function (app) {
       });
       stream.on("error", console.error);
       stream.on("end", () => {
+        resData.push({ others: "13221" });
         res.send(resData);
       });
     }

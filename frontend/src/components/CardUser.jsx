@@ -5,22 +5,29 @@ import {
   CardBody,
   CardFooter,
   Image,
+  Button,
   Heading,
 } from "@chakra-ui/react";
+import { Navigate } from "react-router-dom";
+
 export default class CardUser extends React.Component {
   constructor(props) {
     super();
+    this.removeDescription = this.removeDescription.bind(this);
     this.state = {
       id: props.id,
       name: props.name,
       surname: props.surname,
-      mainInstrument: props.instruments[0],
+      username: props.username,
       instruments: props.instruments,
+      mainInstrument: props.instruments[0],
+      redirect: false,
     };
   }
 
   removeDescription(instrument) {
     // Remove everything in () from the string
+    if (instrument === undefined) return "";
     return instrument.replace(/\([^)]*\)/, "").trim();
   }
 
@@ -28,7 +35,7 @@ export default class CardUser extends React.Component {
     return (
       <>
         <Card size={"md"} variant={"outline"}>
-          <CardHeader>{this.state.name}</CardHeader>
+          <CardHeader>{this.state.username}</CardHeader>
           <CardBody>
             <Heading as={"h4"} size={"md"}>
               Main Instrument{" "}
@@ -41,8 +48,16 @@ export default class CardUser extends React.Component {
           </CardBody>
           <CardFooter>
             <a href={`/profile/${this.state.id}`}>View Profile</a>
+            <Button
+              onClick={() => {
+                this.setState({ redirect: true });
+              }}
+            >
+              SendMessage
+            </Button>
           </CardFooter>
         </Card>
+        {this.state.redirect ? <Navigate to={`/chat`} /> : null}
       </>
     );
   }

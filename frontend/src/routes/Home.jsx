@@ -18,6 +18,9 @@ import {
 import authService from "../services/auth.service";
 import { Navigate } from "react-router-dom";
 import authHeader from "../services/auth-headers";
+import CardUser from "../components/CardUser";
+import socket from "..";
+import { on } from "events";
 
 export default class Home extends Component {
   constructor(props) {
@@ -27,11 +30,12 @@ export default class Home extends Component {
     this.getSuggestedUsers = this.getSuggestedUsers.bind(this);
     this.content = this.content.bind(this);
     this.state = {
-      currentUser: authService.getCurrentUser().user,
+      currentUser: authService.getCurrentUser(),
       suggestedUsers: [],
       genres: [],
       mood: "",
       loading: true,
+      usersOnline: [],
     };
   }
 
@@ -62,8 +66,7 @@ export default class Home extends Component {
       const mood = response.data.mood.split("/");
       this.setState({ mood: mood[mood.length - 1] });
     }
-
-    if (response.data.genre.length === 0) {
+    if (response.data.genre.length === 1) {
       this.setState({ genres: ["Rock"] });
       return;
     } else {
@@ -77,20 +80,39 @@ export default class Home extends Component {
     }
   }
 
-  async getSuggestedUsers() {
+  getSuggestedUsers() {
     const suggestedUsers = [];
-    const response = await axios.get(
-      `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`,
-      { headers: authHeader() }
-    );
-    for (const [_, value] of Object.entries(response.data)) {
-      const user = await this.getUserInfo(value.others);
-      suggestedUsers.push(user);
-    }
-    this.setState({ suggestedUsers: suggestedUsers });
+    axios
+      .get(
+        `http://localhost:3001/api/suggestedUsers/${this.state.currentUser.id}`,
+        { headers: authHeader() }
+      )
+      .then((response) => {
+        for (const [_, value] of Object.entries(response.data)) {
+          axios
+            .get(`http://localhost:3001/api/users/${value.others}`, {
+              headers: authHeader(),
+            })
+            .then((user) => {
+              suggestedUsers.push(
+                <CardUser
+                  key={value.others}
+                  id={value.others}
+                  username={user.data.username}
+                  name={user.data.name}
+                  instruments={["Chitarra"]}
+                  genre={"Rock"}
+                />
+              );
+              this.setState({
+                suggestedUsers: suggestedUsers,
+              });
+            });
+        }
+      });
   }
   componentDidMount() {
-    if (authService.getCurrentUser() !== null) {
+    if (this.state.currentUser !== null) {
       const getAll = async () => {
         await this.getUserInfo(this.state.currentUser.id);
         await this.getSuggestedUsers();
@@ -100,13 +122,43 @@ export default class Home extends Component {
         this.setState({ loading: false });
       });
     }
+    const sessionID = localStorage.getItem("sessionID");
+    if (sessionID) {
+      socket.auth = { id: this.state.currentUser.id, sessionID: sessionID };
+      socket.connect();
+    } else {
+      socket.auth = { id: this.state.currentUser.id };
+      socket.connect();
+    }
+
+    socket.on("connect_error", (err) => {
+      console.log(err);
+    });
+    socket.on("users", (users) => {
+      users.forEach((user) => {
+        user.self = user.socketID === socket.id;
+      });
+      users.sort((a, b) => {
+        if (a.self) return -1;
+        if (b.self) return 1;
+        if (a.username < b.username) return -1;
+        return a.username > b.username ? 1 : 0;
+      });
+      let onlineUsers = users.filter((user) => !user.self);
+      this.setState({ usersOnline: onlineUsers });
+    });
+    socket.on("user connected", (user) => {
+      this.setState((state) => ({
+        usersOnline: [...state.usersOnline, user],
+      }));
+    });
   }
 
   content() {
     return (
       <>
+        {this.state.currentUser === null ? <Navigate to="/signin" /> : null}
         <Header user={this.state.currentUser} />
-
         <Divider />
         <Container maxW="container.xl">
           {this.state.loading ? (
@@ -118,6 +170,29 @@ export default class Home extends Component {
               </Heading>
               <Provider>
                 <Carousel gap={5}>{this.state.suggestedUsers}</Carousel>
+                <Flex justifyContent="space-between" padding="4">
+                  <LeftButton />
+                  <RightButton />
+                </Flex>
+              </Provider>
+              <Heading as="h2" size="lg" padding="4">
+                Users online
+              </Heading>
+              <Provider>
+                <Carousel gap={5}>
+                  {this.state.usersOnline.map((user) => {
+                    return (
+                      <CardUser
+                        key={user.socketID}
+                        id={user.socketID}
+                        username={user.username}
+                        name={user.name}
+                        instruments={["Chitarra"]}
+                        genre={"Rock"}
+                      />
+                    );
+                  })}
+                </Carousel>
                 <Flex justifyContent="space-between" padding="4">
                   <LeftButton />
                   <RightButton />

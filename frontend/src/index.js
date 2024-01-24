@@ -7,8 +7,22 @@ import Home from "./routes/Home";
 import Profile from "./routes/Profile";
 import Login from "./routes/Login";
 import Register from "./routes/Register";
+import Chats from "./routes/Chats";
 import { ChakraProvider } from "@chakra-ui/react";
+import io from "socket.io-client";
+const socket = io("http://localhost:3011", {
+  autoConnect: false,
+});
 
+socket.onAny((event, ...args) => {
+  console.log(event, args);
+});
+socket.on("session", ({ sessionID, userID }) => {
+  console.log(sessionID, userID);
+  socket.auth = { sessionID };
+  localStorage.setItem("sessionID", sessionID);
+  socket.userID = userID;
+});
 const router = createBrowserRouter([
   {
     path: "/signin",
@@ -30,6 +44,10 @@ const router = createBrowserRouter([
     path: "/profile",
     element: <Profile />,
   },
+  {
+    path: "/chat",
+    element: <Chats />,
+  },
 ]);
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -42,3 +60,4 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+export default socket;

@@ -28,9 +28,12 @@ class AuthService {
     });
   }
 
-
   getCurrentUser() {
-    return JSON.parse(localStorage.getItem("user"));
+    let user = localStorage.getItem("user");
+    if (user) {
+      return JSON.parse(user).user;
+    }
+    return null;
   }
 }
 
