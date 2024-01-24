@@ -11,6 +11,8 @@ const client = new sparqlClient({
 
 const db = require("../models");
 const Friend = db.friend;
+const Instrument = db.instrument;
+const Op = db.Sequelize.Op;
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -82,13 +84,14 @@ module.exports = function (app) {
           name: resData[0].firstName,
           surname: resData[0].surname,
           username: resData[0].username,
-          instrument: [],
+          instruments: [],
         };
         for (data of resData) {
           if (data.instrument) {
-            finalRes.instrument.push(data.instrument);
+            finalRes.instruments.push(data.instrument);
           }
         }
+        console.log(finalRes);
         res.send(finalRes);
       }
     });
@@ -306,9 +309,57 @@ module.exports = function (app) {
           break;
         case "instruments":
           console.log("Case instruments");
-          await client.query.update(update.instruments(req.body)).then(() => {
-            console.log("User Instruments updated successfully in Jena");
-          });
+          // get instruments id if they exist
+          let instrumentsToAdd = [];
+          for (instrument_body of req.body.instruments) {
+            await Instrument.findAll({
+              attributes: ["instrument_id"],
+              where: {
+                instrument_name: {
+                  [Op.like]: `%${instrument_body}%`,
+                },
+              },
+            })
+              .then((instruments) => {
+                // if they don't exist, create them
+                if (instruments.length == 0) {
+                  console.log("Instrument not found");
+                } else {
+                  client.query
+                    .update(
+                      update.instruments({
+                        id: instruments[0].instrument_id,
+                        name: instrument_body,
+                      })
+                    )
+                    .then((stream) => {
+                      stream.on("err", () => console.error);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                }
+                instrumentsToAdd.push(instruments[0].instrument_id);
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+          }
+          // add instruments to user
+          console.log(instrumentsToAdd);
+          for (instrument of instrumentsToAdd) {
+            await client.query
+              .update(
+                update.instrumentsUsers({
+                  id: req.params.id,
+                  instrument: instrument,
+                })
+              )
+              .then(() => {
+                console.log("User Instruments updated successfully in Jena");
+              });
+          }
+
           break;
         default:
           break;

@@ -33,7 +33,6 @@ module.exports = {
       ` 
             DELETE  {<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> foaf:firstName ?name}
             WHERE   {<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> foaf:firstName ?name};
-
             INSERT   DATA {
                <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>
                  foaf:firstName "${data.name}"^^xsd:string.
@@ -51,8 +50,6 @@ module.exports = {
             WHERE {
                 <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}>  foaf:surname ?name
             };
-            
-
             INSERT DATA {
             <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
                 foaf:surname "${data.surname}"^^xsd:string}
@@ -73,12 +70,25 @@ module.exports = {
     `;
     return decodeURI(query);
   },
+  instrumentsUsers: function (data) {
+    const query =
+      PREFIX +
+      ` INSERT DATA
+         {
+        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> musico:plays_instrument 
+        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${data.instrument}>.
+
+         }
+        
+        `;
+    return decodeURI(query);
+  },
   instruments: function (data) {
     const query =
       PREFIX +
       ` INSERT DATA
          {
-        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Users/${data.id}> 
+        <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${data.id}> schema:name "${data.name}"^^xsd:string.
 
          }
         

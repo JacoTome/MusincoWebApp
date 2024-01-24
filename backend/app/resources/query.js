@@ -32,11 +32,10 @@ module.exports = {
   instrument: function (id) {
     const query =
       PREFIX +
-      `SELECT ?name ?used_to_play
-    SELECT *
+      `SELECT *
     WHERE {
-    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${id}> schema:name ?name;
-    musincoo:used_to_play ?used_to_play.
+    <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${id}> schema:name ?name.
+    OPTIONAL {<http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${id}> musincoo:used_to_play ?used_to_play} .
         
     }
     LIMIT 10
@@ -55,7 +54,6 @@ module.exports = {
     `;
     return decodeURI(query);
   },
-
 
   genres: function (id) {
     const query =
@@ -152,6 +150,20 @@ module.exports = {
     WHERE {
       <http://www.semanticweb.org/jaco/ontologies/2023/7/musinco/Instrument/${instr}> musincoo:used_to_play/schema:name ?genre_name .
 
+    }
+  `;
+    return decodeURI(query);
+  },
+
+  instrumentByName: function (name) {
+    const query =
+      PREFIX +
+      `
+    SELECT ?instrument
+    WHERE {
+      ?instrument a mo:Instrument;
+      schema:name ?name.
+      FILTER regex(?name, "(${name})", "i")
     }
   `;
     return decodeURI(query);
