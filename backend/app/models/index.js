@@ -1,8 +1,5 @@
 const config = require("../config/db.config.js");
 const Sequelize = require("sequelize");
-// const sequelize = new Sequelize(
-//   "mysql://squinkis:jaco@204.216.223.231:3306/musinco"
-// );
 
 const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
   host: config.HOST,
