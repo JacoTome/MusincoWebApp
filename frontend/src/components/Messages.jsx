@@ -9,60 +9,85 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import socket from "..";
+import authHeader from "../services/auth-headers";
+import authService from "../services/auth.service";
+import axios from "axios";
+import MessageBox from "./MessageBox";
 export default function Messages(props) {
   const [messages, setMessages] = useState([]);
-  const [userID, setUserID] = useState(props.id);
+  const user = authService.getCurrentUser();
+
+  function onNewMessage(message) {
+    console.log(message);
+    setMessages((state) => [...state, message]);
+  }
+
   useEffect(() => {
-    socket.on("private_message", ({ message, from }) => {
-      console.log("private message");
-      setMessages((state) => [
-        ...state,
-        {
-          message,
-          username: from,
-          __createdTime: Date.now(),
-        },
-      ]);
-    });
+    if (localStorage.getItem("sessionID")) {
+      socket.auth = { sessionID: localStorage.getItem("sessionID") };
+    } else {
+      socket.auth = { id: user.id };
+    }
+    socket.connect();
+    const getMessage = async () => {
+      await axios
+        .get(`http://localhost:3001/api/users/${user.id}/message/${props.id}`, {
+          headers: authHeader(),
+        })
+        .then((res) => {
+          var messages = res.data.messages;
+          messages.sort((a, b) => {
+            return !(a.timestamp - b.timestamp);
+          });
+          setMessages(messages);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    getMessage();
+    socket.on("private_message", onNewMessage);
     socket.on("connect_error", (err) => {
       console.log(err);
     });
-  });
+  }, [socket]);
 
-  function formatDateFromTimestamp(timestamp) {
-    const date = new Date(timestamp);
-    return date.toLocaleString();
+  function AddMessage() {
+    setMessages((messages) => [
+      ...messages,
+      {
+        message_content: document.getElementById("message").value,
+        sender_id: user.id,
+        timestamp: Date.now(),
+        receiver_id: props.id,
+      },
+    ]);
+    if (!props.id) {
+      socket.emit("private_message", {
+        message: document.getElementById("message").value,
+        to: user.id,
+        timestamp: Date.now(),
+      });
+      return;
+    }
+    socket.emit("private_message", {
+      message: document.getElementById("message").value,
+      to: props.id,
+      timestamp: Date.now(),
+    });
   }
 
   return (
     <Container>
-      <Stack overflow={"scroll"} h="200px">
-        {messages.map((message, index) => (
-          <StackItem key={index}>
-            {message.username} -{" "}
-            {formatDateFromTimestamp(message.__createdTime)} - {message.message}
-          </StackItem>
-        ))}
-      </Stack>
+      <MessageBox messages={messages} user={user} />
       <Divider />
       <Container>
         <Flex>
           <Input type="text" id="message" />
           <Button
-            onClick={() => {
-              console.log(document.getElementById("message").value);
-              socket.emit("private_message", {
-                message: document.getElementById("message").value,
-                to: userID,
-              });
-              setMessages((state) => [
-                ...state,
-                {
-                  message: document.getElementById("message").value,
-                  username: socket.username,
-                  __createdTime: Date.now(),
-                },
-              ]);
+            onClick={async (e) => {
+              e.preventDefault();
+              AddMessage();
             }}
           >
             Send

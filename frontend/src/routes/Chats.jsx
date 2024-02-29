@@ -17,15 +17,35 @@ export default class Chats extends React.Component {
   constructor(props) {
     super(props);
     this.changeChat = this.changeChat.bind(this);
+    this.getUserInfo = this.getUserInfo.bind(this);
     this.state = {
       loading: true,
       user: authService.getCurrentUser(),
       friends: [],
       activeChat: "",
+      newMessages: [],
     };
+  }
+  async getUserInfo() {
+    await axios
+      .get(`http://localhost:3001/api/users/${this.state.user.id}`, {
+        headers: authHeader(),
+      })
+      .then((response) => {
+        this.setState({
+          user: {
+            ...this.state.user,
+            ...response.data,
+          },
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   componentDidMount() {
+    this.getUserInfo();
     axios
       .get(`http://localhost:3001/api/users/${this.state.user.id}/friends`, {
         headers: authHeader(),
@@ -43,6 +63,18 @@ export default class Chats extends React.Component {
       .catch((err) => {
         console.log(err);
       });
+
+    socket.on("private_message", ({ sender_id }) => {
+      console.log("private message");
+      console.log(sender_id);
+
+      if (sender_id !== this.state.activeChat) {
+        this.setState({
+          ...this.state,
+          newMessages: [...this.state.newMessages, sender_id],
+        });
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -53,6 +85,7 @@ export default class Chats extends React.Component {
     this.setState({
       ...this.state,
       activeChat: friend,
+      newMessages: this.state.newMessages.filter((el) => el !== friend),
     });
   }
 
@@ -70,7 +103,7 @@ export default class Chats extends React.Component {
               gap={6}
             >
               <GridItem rowSpan={2}>
-                <FriendList>
+                <FriendList user={this.state.user.id}>
                   {this.state.friends.map((friend, index) => (
                     <StackItem
                       key={index}
@@ -79,6 +112,9 @@ export default class Chats extends React.Component {
                       }}
                     >
                       {friend}
+                      {this.state.newMessages.includes(friend) ? (
+                        <>NEW</>
+                      ) : null}
                     </StackItem>
                   ))}
                 </FriendList>

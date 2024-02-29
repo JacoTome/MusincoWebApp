@@ -27,6 +27,16 @@ db.user = require("../models/user.model.js")(sequelize, Sequelize);
 db.role = require("../models/role.model.js")(sequelize, Sequelize);
 db.friend = require("../models/friend.model.js")(sequelize, Sequelize);
 db.instrument = require("../models/instruments.model.js")(sequelize, Sequelize);
+db.genre = require("../models/genre.model.js")(sequelize, Sequelize);
+db.artist = require("../models/artist.model.js")(sequelize, Sequelize);
+db.message = require("../models/message.model.js")(sequelize, Sequelize);
+db.participation = require("../models/participation.model.js")(
+  sequelize,
+  Sequelize
+);
+db.event = require("../models/event.model.js")(sequelize, Sequelize);
+db.position = require("../models/position.model.js")(sequelize, Sequelize);
+db.settings = require("../models/settings.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "user_roles",
@@ -35,13 +45,16 @@ db.user.belongsToMany(db.role, {
   through: "user_roles",
 });
 db.friend.belongsToMany(db.user, {
-  through: "friends",
+  through: "friendships",
 });
 db.instrument.belongsToMany(db.user, {
-  through: "user_has_instruments",
+  through: "user_has_instrument",
 });
 db.user.belongsToMany(db.instrument, {
-  through: "user_has_instruments",
+  through: "user_has_instrument",
+});
+db.genre.belongsToMany(db.user, {
+  through: "user_plays_genre",
 });
 
 db.ROLES = ["user", "admin", "moderator"];

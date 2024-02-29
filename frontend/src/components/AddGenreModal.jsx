@@ -13,9 +13,9 @@ import {
   Modal,
 } from "@chakra-ui/react";
 import SearchBar from "./SearchBar";
-export default function AddInstrumentModal(props) {
+export default function AddGenreModal(props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [instruments, setInstruments] = React.useState("");
+  const [genre, setGenre] = React.useState("");
 
   const initialRef = React.useRef();
   return (
@@ -27,11 +27,11 @@ export default function AddInstrumentModal(props) {
         <ModalOverlay />
         <ModalContent>
           <FormControl>
-            <ModalHeader>Add an Instrument</ModalHeader>
+            <ModalHeader>Add a genre you like</ModalHeader>
             <ModalCloseButton />
             <ModalBody pb={6}>
-              <FormLabel>Instrument name</FormLabel>
-              <SearchBar set={setInstruments} kind="instruments" />
+              <FormLabel>Genre name</FormLabel>
+              <SearchBar kind="genres" set={setGenre} />
             </ModalBody>
             <ModalFooter>
               <Button
@@ -39,8 +39,8 @@ export default function AddInstrumentModal(props) {
                 colorScheme="blue"
                 mr={3}
                 onClick={() => {
-                  props.addInstrument(instruments);
-                  setInstruments("");
+                  props.addGenre(genre);
+                  setGenre("");
                   onClose();
                 }}
               >

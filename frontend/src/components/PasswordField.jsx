@@ -1,3 +1,4 @@
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   FormControl,
   FormLabel,
@@ -29,9 +30,10 @@ export const PasswordField = forwardRef((props, ref) => {
       <InputGroup>
         <InputRightElement>
           <IconButton
-            variant="text"
+            color={"white"}
             aria-label={isOpen ? "Mask password" : "Reveal password"}
             onClick={onClickReveal}
+            icon={isOpen ? <ViewOffIcon /> : <ViewIcon />}
           />
         </InputRightElement>
         <Input

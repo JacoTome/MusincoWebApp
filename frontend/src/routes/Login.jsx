@@ -114,17 +114,12 @@ class Login extends Component {
                 </Stack>
                 <HStack justify="space-between">
                   <Checkbox defaultChecked>Remember me</Checkbox>
-                  <Button variant="text" size="sm">
-                    Forgot password?
-                  </Button>
+                  <Button size="sm">Forgot password?</Button>
                 </HStack>
                 <Stack spacing="6">
                   <Button type="submit">Sign in</Button>
                   <HStack>
                     <Divider />
-                    <Text textStyle="sm" whiteSpace="nowrap" color="fg.muted">
-                      or continue with
-                    </Text>
                     <Divider />
                   </HStack>
                 </Stack>

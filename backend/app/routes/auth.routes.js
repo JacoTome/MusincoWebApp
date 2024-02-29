@@ -6,7 +6,7 @@ module.exports = function (app) {
     res.header(
       "Access-Control-Allow-Headers", // TODO: check if this is needed
       "x-access-token, Origin, Content-Type, Accept",
-      "Access.Control-Allow-Origin", // TODO: check if this is needed
+      "Access.Control-Allow-Origin",
       "*"
     );
     next();
@@ -21,10 +21,7 @@ module.exports = function (app) {
     controller.signup
   );
 
-  app.post(
-    '/api/auth/refresh',
-    controller.refresh
-  )
+  app.post("/api/auth/refresh", controller.refresh);
 
   app.post("/api/auth/signin", controller.signin);
 };
