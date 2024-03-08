@@ -1,0 +1,89 @@
+services:
+  backend:
+    image: jacopotome/musincowebapp:backend
+    ports:
+      - "3001:3001"
+    # depends_on:
+    #   - db
+  frontend:
+    image: jacopotome/musincowebapp:backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # db:
+  #   image: mysql:latest
+  #   container_name: musinco-db-sql
+  #   restart: always
+  #   environment:
+  #     MYSQL_DATABASE: "musinco"
+  #     MYSQL_USER: "musinco"
+  #     MYSQL_PASSWORD: "musinco"
+  #     MYSQL_ROOT_PASSWORD: "musinco"
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - ./db_sql/data:/var/lib/mysql
+
+  # musinco-jena:
+  #   image: musinco-jena
+  #   ports:
+  #     - "3030:3030"
+
+  jobmanager:
+    image: flink:latest
+    ports:
+      - "8081:8081"
+    command: jobmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+      - KAFKA_ADDRESS=kafka:9092
+
+  taskmanager:
+    image: flink:latest
+    depends_on:
+      - jobmanager
+    command: taskmanager
+    scale: 1
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 2
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  inference:
+    image: inference:0.0.1-SNAPSHOT
+    ports:
+      - "3003:3003"
+    depends_on:
+      - kafka
+      - taskmanager
+      - jobmanager
+      - zookeeper
+# volumes:
+#   mysql-data:
+#   jena-data:
