@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: jacopotome/musincowebapp:backend
+    ports:
+      - "3001:3001"
+    restart:
+      - always
+  frontend:
+    image: jacopotome/musincowebapp:frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
