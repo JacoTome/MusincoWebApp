@@ -3,8 +3,7 @@ services:
     image: jacopotome/musincowebapp:backend
     ports:
       - "3001:3001"
-    restart:
-      - always
+    restart: always
   frontend:
     image: jacopotome/musincowebapp:frontend
     ports:
