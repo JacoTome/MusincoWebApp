@@ -13,18 +13,14 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String role;
-    private boolean enabled;
 
     public User() {
     }
 
-    public User(String username, String password, String email, String role, boolean enabled) {
+    public User(String username, String password, String email ) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role = role;
-        this.enabled = enabled;
     }
 
     public Long getId() {
@@ -59,19 +55,4 @@ public class User {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 }
