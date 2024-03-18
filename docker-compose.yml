@@ -5,15 +5,27 @@ services:
       - "3001:3001"
     depends_on:
       - db
+
   frontend:
     image: musinco-frontend
     ports:
-      - "3002:3002"
+      - "3000:3000"
     depends_on:
       - backend
 
   db:
     image: mysql:latest
+    container_name: musinco-db-sql
+    restart: always
+    environment:
+      MYSQL_DATABASE: "musinco"
+      MYSQL_USER: "musinco"
+      MYSQL_PASSWORD: "musinco"
+      MYSQL_ROOT_PASSWORD: "musinco"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db_sql/data:/var/lib/mysql
 
   jobmanager:
     image: flink:latest
@@ -24,6 +36,8 @@ services:
       - |
         FLINK_PROPERTIES=
         jobmanager.rpc.address: jobmanager
+      - KAFKA_ADDRESS=kafka:9092
+
   taskmanager:
     image: flink:latest
     depends_on:
@@ -66,3 +80,11 @@ services:
       - taskmanager
       - jobmanager
       - zookeeper
+
+  musinco-jena:
+    image: musinco-jena
+    ports:
+      - "3030:3030"
+
+volumes:
+  mysql-data:

@@ -1,34 +1,32 @@
 package musinco.webapp.java_backend.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
-public class User {
+@Table(name = "users")
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long user_id;
     private String username;
     private String password;
     private String email;
 
-    public User() {
+    public Users() {
     }
 
-    public User(String username, String password, String email ) {
+    public Users(String username, String password, String email ) {
         this.username = username;
         this.password = password;
         this.email = email;
     }
 
-    public Long getId() {
-        return id;
+    public Long getUser_id() {
+        return user_id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUser_id(Long id) {
+        this.user_id = id;
     }
 
     public String getUsername() {
