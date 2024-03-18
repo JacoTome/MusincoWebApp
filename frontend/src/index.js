@@ -159,13 +159,22 @@ const theme = extendTheme({
 // SOCKET IO
 const socket = io("http://localhost:3011", {
   autoConnect: false,
+  transports: ["websocket"],
 });
-socket.onAny((event, ...args) => {
-  console.log(event, args);
+
+socket.on("connect_error", (err) => {
+  console.log(`connect_error due to ${err.message}`);
+  console.log(err.description);
+  console.log(err.context);
 });
-socket.on("session", ({ sessionID, userID }) => {
+
+socket.on("session", ({ sessionID, userID, username }) => {
   socket.auth = { sessionID };
   localStorage.setItem("sessionID", sessionID);
+  if (username) {
+    console.log("username: ", username);
+    socket.username = username;
+  }
   socket.userID = userID;
 });
 

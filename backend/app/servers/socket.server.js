@@ -7,14 +7,13 @@ const Message = db.message;
 
 module.exports = (app) => {
   const io = new Server(
-    app.listen(3011, () => {
-      console.log("Socket.io listening on port 3011");
-    }),
-    {
-      cors: {
-        origin: "http://localhost:3000",
+    app.listen(
+      3011,
+      () => {
+        console.log("Socket.io listening on port 3011");
       },
-    }
+      { cors: { origin: "http://localhost:3000" } }
+    )
   );
   io.use((socket, next) => {
     const sessionID = socket.handshake.auth.sessionID;
@@ -25,7 +24,7 @@ module.exports = (app) => {
         socket.sessionID = sessionID;
         socket.userID = session.userID;
         socket.id = session.id;
-        socket.username = session.username;
+        socket.username = socket.handshake.auth.username;
         return next();
       }
     }
@@ -43,7 +42,7 @@ module.exports = (app) => {
   io.on("connection", (socket) => {
     const activeUsers = [];
     for (let [id, socket] of io.of("/").sockets) {
-      console.log("socket username: ", socket.username);
+      console.log("[SOCKET.IO] socket username: ", socket.username);
       activeUsers.push({
         socketID: id,
         sessionID: socket.sessionID,
@@ -54,6 +53,7 @@ module.exports = (app) => {
     socket.emit("session", {
       sessionID: socket.sessionID,
       userID: socket.userID,
+      username: socket.username,
     });
     socket.emit("users", activeUsers);
     socket.broadcast.emit("user connected", {

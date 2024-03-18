@@ -169,6 +169,7 @@ export default class Home extends Component {
       getAll()
         .then(() => {
           this.setState({ loading: false });
+
           const sessionID = localStorage.getItem("sessionID");
           if (sessionID) {
             socket.auth = {
@@ -176,14 +177,13 @@ export default class Home extends Component {
               sessionID: sessionID,
               username: this.state.currentUser.username,
             };
-            socket.connect();
           } else {
             socket.auth = {
               id: this.state.currentUser.id,
               username: this.state.currentUser.username,
             };
-            socket.connect();
           }
+          socket.connect();
         })
         .catch((err) => {
           console.log(err);

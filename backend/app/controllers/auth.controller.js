@@ -3,6 +3,7 @@ const config = require("../config/auth.config");
 const User = db.user;
 const Role = db.role;
 const Artist = db.artist;
+const Settings = db.settings;
 
 const Op = db.Sequelize.Op;
 const sparqlClient = require("sparql-http-client");
@@ -66,6 +67,21 @@ exports.signup = (req, res) => {
               });
             });
           }
+
+          // Create default settings for user
+          Settings.create({
+            user_id: user.user_id,
+            notification_enabled: true,
+            language: "en",
+            timezone: "UTC",
+            email_notifications: true,
+          })
+            .then(() => {
+              console.log("Settings created successfully");
+            })
+            .catch((err) => {
+              console.log(err);
+            });
         })
         .catch((err) => {
           res.status(500).send({ message: err.message });
