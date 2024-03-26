@@ -1,5 +1,5 @@
 package musinco.webapp.java_backend.config;
 
-public enum Roles {
-    USER, MODERATOR, ADMIN
+public enum ERole {
+    user, MODERATOR, ADMIN
 }

@@ -10,7 +10,6 @@ import java.util.Set;
 @Table(name = "users")
 public class Users {
 
-
     @Column(name = "first_name", length = 50)
     private String firstName;
 
@@ -63,8 +62,6 @@ public class Users {
             inverseJoinColumns = @JoinColumn(name = "genre_id"))
     private Set<Genre> genres = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "users")
-    private Set<UserRole> userRoles = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "user")
     private Set<UserSetting> userSettings = new LinkedHashSet<>();
@@ -79,14 +76,24 @@ public class Users {
     private String password;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id", nullable = false)
-    private Long user_id;
+    @Column(name = "userId", nullable = false)
+    private Integer userId;
 
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "userId", nullable = false)
     private Artist artist;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "users", fetch = FetchType.EAGER)
+    private Set<UserRole> userRoles = new LinkedHashSet<>();
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
 
     public Artist getArtist() {
         return artist;
@@ -96,12 +103,12 @@ public class Users {
         this.artist = artist;
     }
 
-    public Long getUser_id() {
-        return user_id;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getPassword() {
@@ -136,13 +143,8 @@ public class Users {
         this.userSettings = userSettings;
     }
 
-    public Set<UserRole> getUserRoles() {
-        return userRoles;
-    }
 
-    public void setUserRoles(Set<UserRole> userRoles) {
-        this.userRoles = userRoles;
-    }
+
 
     public Set<Genre> getGenres() {
         return genres;
@@ -260,6 +262,34 @@ public class Users {
 
     public Users() {
     }
+    @Override
+    public String toString() {
+        return "Users{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", codiceFiscale='" + codiceFiscale + '\'' +
+                ", basedNear=" + basedNear +
+                ", professionalLevel='" + professionalLevel + '\'' +
+                ", expertiseLevel='" + expertiseLevel + '\'' +
+                ", multiInstrumentalismLevel='" + multiInstrumentalismLevel + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", chatMessages=" + chatMessages +
+                ", friendships=" + friendships +
+                ", musicianGroups=" + musicianGroups +
+                ", instruments=" + instruments +
+                ", genres=" + genres +
+                ", userSettings=" + userSettings +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", userId=" + userId +
+                ", artist=" + artist +
+                ", userRoles=" + userRoles +
+                '}';
+    }
+
+
 
 
  }

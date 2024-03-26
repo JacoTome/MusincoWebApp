@@ -7,13 +7,14 @@ import java.time.Instant;
 @Entity
 @Table(name = "user_roles")
 public class UserRole {
+
     @EmbeddedId
     private UserRoleId id;
 
-    @MapsId("roleId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "roleId")
-    private Roles roles;
+    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userId")
+    private Users users;
 
     @Column(name = "createdAt", nullable = false)
     private Instant createdAt;
@@ -21,17 +22,20 @@ public class UserRole {
     @Column(name = "updatedAt", nullable = false)
     private Instant updatedAt;
 
-    @MapsId("userUserId")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userUserId")
-    private Users users;
+    @MapsId("roleId")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "roleId")
+    private Roles roles;
 
-    public Users getUsers() {
-        return users;
+    public UserRole() {
     }
 
-    public void setUsers(Users users) {
-        this.users = users;
+    public Roles getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Roles roles) {
+        this.roles = roles;
     }
 
     public Instant getUpdatedAt() {
@@ -58,12 +62,12 @@ public class UserRole {
         this.id = id;
     }
 
-    public Roles getRoles() {
-        return roles;
+    public Users getUsers() {
+        return users;
     }
 
-    public void setRoles(Roles roles) {
-        this.roles = roles;
+    public void setUsers(Users users) {
+        this.users = users;
     }
 
 }

@@ -2,20 +2,20 @@ package musinco.webapp.java_backend.models;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Entity
 @Table(name="artist")
 public class Artist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long artist_id;
+    private Integer artist_id;
 
     @Column(name = "createdAt")
-    private LocalDate createdAt;
+    private Instant createdAt;
 
     @Column(name = "updatedAt")
-    private LocalDate updatedAt;
+    private Instant updatedAt;
 
     @Column(name = "artist_name", length = 100)
     private String artistName;
@@ -28,19 +28,19 @@ public class Artist {
         this.artistName = artistName;
     }
 
-    public LocalDate getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDate updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public LocalDate getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -48,11 +48,11 @@ public class Artist {
     }
 
 
-    public Long getArtist_id() {
+    public Integer getArtist_id() {
         return artist_id;
     }
 
-    public void setArtist_id(Long artist_id) {
+    public void setArtist_id(Integer artist_id) {
         this.artist_id = artist_id;
     }
 }

@@ -4,17 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import org.hibernate.Hibernate;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
 public class UserRoleId implements Serializable {
-    private static final long serialVersionUID = 1033131296399783999L;
+    @Serial
+    private static final long serialVersionUID = 2279551224631562028L;
     @Column(name = "roleId", nullable = false)
     private Integer roleId;
 
-    @Column(name = "userUserId", nullable = false)
-    private Integer userUserId;
+    @Column(name = "userId", nullable = false)
+    private Integer userId;
 
     public Integer getRoleId() {
         return roleId;
@@ -24,12 +26,12 @@ public class UserRoleId implements Serializable {
         this.roleId = roleId;
     }
 
-    public Integer getUserUserId() {
-        return userUserId;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUserUserId(Integer userUserId) {
-        this.userUserId = userUserId;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     @Override
@@ -38,12 +40,19 @@ public class UserRoleId implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UserRoleId entity = (UserRoleId) o;
         return Objects.equals(this.roleId, entity.roleId) &&
-                Objects.equals(this.userUserId, entity.userUserId);
+                Objects.equals(this.userId, entity.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(roleId, userUserId);
+        return Objects.hash(roleId, userId);
     }
 
+    @Override
+    public String toString() {
+        return "UserRoleId{" +
+                "roleId=" + roleId +
+                ", userId=" + userId +
+                '}';
+    }
 }

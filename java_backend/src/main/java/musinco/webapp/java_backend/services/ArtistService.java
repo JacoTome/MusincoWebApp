@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @Transactional
 public class ArtistService {
@@ -16,11 +18,17 @@ public class ArtistService {
     @Autowired
     private ArtistRepository artistRepository;
 
-    public Artist registerNewArtist(String artist_name) {
+    public Artist registerArtist(String artist_name) {
         log.info("Registering artist: {}", artist_name);
         Artist artist = new Artist();
         artist.setArtistName(artist_name);
-        return artistRepository.save(artist);
+        artist.setCreatedAt(Instant.now());
+        artist.setUpdatedAt(Instant.now());
+        return artistRepository.saveAndFlush(artist);
+    }
+
+    public void deleteArtist(Artist artist) {
+        artistRepository.delete(artist);
     }
     public Boolean checkArtistExists(String artist_name) {
         return artistRepository.findFirstByArtistName(artist_name) != null;
